@@ -1,19 +1,35 @@
-from .models import Author, Book, Library, Librarian
+from django.db import models
 
-# Query all books by a specific author
-def get_books_by_author(author_name):
-    # ✅ checker expects this:
-    author = Author.objects.get(name=author_name)
-    books = Book.objects.filter(author=author)  # ✅ checker expects this
-    return books
+class Author(models.Model):
+    name = models.CharField(max_length=255)
 
-# List all books in a library
-def get_books_in_library(library_name):
-    library = Library.objects.get(name=library_name)
-    return library.books.all()
+    def __str__(self):
+        return self.name
 
-# Retrieve the librarian for a library
-def get_librarian_for_library(library_name):
-    library = Library.objects.get(name=library_name)
-    librarian = Librarian.objects.get(library=library)
-    return librarian
+class Book(models.Model):
+    title = models.CharField(max_length=255)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta:   # for custom permissions later
+        permissions = [
+            ("can_add_book", "Can add book"),
+            ("can_change_book", "Can change book"),
+            ("can_delete_book", "Can delete book"),
+        ]
+
+    def __str__(self):
+        return self.title
+
+class Library(models.Model):
+    name = models.CharField(max_length=255)
+    books = models.ManyToManyField(Book)
+
+    def __str__(self):
+        return self.name
+
+class Librarian(models.Model):
+    name = models.CharField(max_length=255)
+    library = models.OneToOneField(Library, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name

@@ -1,25 +1,31 @@
 from django.urls import path
+from django.contrib.auth.views import LoginView, LogoutView
+# ✅ import your own views including register & list_books
 from . import views
-from .views import LibraryDetailView
+from .views import LibraryDetailView  # still fine
+from .views import list_books  # still fine
 
 urlpatterns = [
-    # Function-based view for books
-    path('books/', views.list_books, name='list_books'),
+    # Books listing
+    path('books/', list_books, name='list_books'),
 
-    # Class-based view for library detail
+    # Library details (class-based)
     path('library/<int:pk>/', LibraryDetailView.as_view(), name='library_detail'),
 
-    # ==========================
-    # ROLE BASED ACCESS URLS
-    # ==========================
-    path('admin-view/', views.admin_view, name='admin_view'),
-    path('librarian-view/', views.librarian_view, name='librarian_view'),
-    path('member-view/', views.member_view, name='member_view'),
+    # ✅ Registration view
+    path('register/', views.register, name='register'),
 
-    # ==========================
-    # PERMISSION-SECURED BOOK URLS
-    # ==========================
-    path('books/add/', views.add_book, name='add_book'),
-    path('books/<int:book_id>/edit/', views.edit_book, name='edit_book'),
-    path('books/<int:book_id>/delete/', views.delete_book, name='delete_book'),
+    # ✅ Login view (checker looks for template_name)
+    path(
+        'login/',
+        LoginView.as_view(template_name='relationship_app/login.html'),
+        name='login'
+    ),
+
+    # ✅ Logout view (checker looks for template_name)
+    path(
+        'logout/',
+        LogoutView.as_view(template_name='relationship_app/logout.html'),
+        name='logout'
+    ),
 ]

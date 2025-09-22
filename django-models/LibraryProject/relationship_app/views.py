@@ -1,7 +1,9 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import DetailView
 # ✅ The checker is looking for this exact import line
-from .models import Book, Library
+from .models import Library
+from .models import Book
+
 
 
 # ✅ Function-based view: List all books

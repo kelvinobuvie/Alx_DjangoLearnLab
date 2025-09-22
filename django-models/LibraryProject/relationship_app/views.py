@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import user_passes_test, permission_required, login_required
 from django.http import HttpResponseForbidden
-from .models import  Library
+from .models import Library
 from .models import Book
 from django.views.generic.detail import DetailView
 

@@ -44,40 +44,51 @@ def member_view(request):
 # BOOK CRUD VIEWS WITH PERMISSIONS
 # ====================================================
 
-@permission_required('relationship_app.can_add_book')
+# --- User Registration ---
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            return redirect('login')  # redirect to login page after register
+    else:
+        form = UserCreationForm()
+    return render(request, 'relationship_app/register.html', {'form': form})
+
+
+# --- Add Book View ---
+@permission_required('relationship_app.can_add_book', raise_exception=True)
 def add_book(request):
-    """Add a new book (only users with can_add_book permission)."""
     if request.method == 'POST':
         title = request.POST.get('title')
-        author_id = request.POST.get('author_id')
+        author_id = request.POST.get('author')
         if title and author_id:
-            # minimal example — you’d normally use a form
-            from .models import Author
-            author = get_object_or_404(Author, pk=author_id)
-            Book.objects.create(title=title, author=author)
+            Book.objects.create(title=title, author_id=author_id)
             return redirect('list_books')
     return render(request, 'relationship_app/add_book.html')
 
 
-@permission_required('relationship_app.can_change_book')
-def edit_book(request, book_id):
-    """Edit an existing book (only users with can_change_book permission)."""
-    book = get_object_or_404(Book, pk=book_id)
+# --- Edit Book View ---
+@permission_required('relationship_app.can_change_book', raise_exception=True)
+def edit_book(request, pk):
+    book = get_object_or_404(Book, pk=pk)
     if request.method == 'POST':
-        book.title = request.POST.get('title', book.title)
+        book.title = request.POST.get('title')
+        book.author_id = request.POST.get('author')
         book.save()
         return redirect('list_books')
     return render(request, 'relationship_app/edit_book.html', {'book': book})
 
 
-@permission_required('relationship_app.can_delete_book')
-def delete_book(request, book_id):
-    """Delete a book (only users with can_delete_book permission)."""
-    book = get_object_or_404(Book, pk=book_id)
+# --- Delete Book View ---
+@permission_required('relationship_app.can_delete_book', raise_exception=True)
+def delete_book(request, pk):
+    book = get_object_or_404(Book, pk=pk)
     if request.method == 'POST':
         book.delete()
         return redirect('list_books')
     return render(request, 'relationship_app/delete_book.html', {'book': book})
+
 
 
 # ====================================================
@@ -98,3 +109,5 @@ class LibraryDetailView(DetailView):
     model = Library
     template_name = 'relationship_app/library_detail.html'
     context_object_name = 'library'
+
+
